@@ -44,7 +44,7 @@ async def guess_filename(request: Request, it: str = Query(None, description="Fi
         title = result.get('title')
         year = result.get('year')
         media_type = result.get('type')
-        
+
         # Log the request
         request_logger.log(
             filename=it,
@@ -57,6 +57,14 @@ async def guess_filename(request: Request, it: str = Query(None, description="Fi
         # Convert result to a serializable format
         serializable_result = {k: str(v) if not isinstance(v, (str, int, float, bool, list, dict, type(None))) else v 
                               for k, v in result.items()}
+        
+        # Properly capitalize title and episode_title if present
+        if 'title' in serializable_result and isinstance(serializable_result['title'], str):
+            serializable_result['title'] = serializable_result['title'].title()
+        
+        if 'episode_title' in serializable_result and isinstance(serializable_result['episode_title'], str):
+            serializable_result['episode_title'] = serializable_result['episode_title'].title()
+            
         return serializable_result
     except Exception as e:
         # Capture the error and return a 500 response

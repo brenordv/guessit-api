@@ -46,7 +46,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
 
 # Copy application code
 COPY main.py .
-COPY test_api.py .
 
 # Change ownership to non-root user
 RUN chown -R app:app /app
