@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /wheels
 
 # Copy application code
-COPY main.py .
+COPY . .
 
 # Change ownership to non-root user
 RUN chown -R app:app /app
