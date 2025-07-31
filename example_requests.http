@@ -8,4 +8,8 @@ GET http://localhost:8000/api/guess?it=The Blob (1988) (1080p BluRay x265 10bit 
 ###
 GET http://localhost:8000/api/guess?it=Rick.and.Morty.S07E10.Fear.No.Mort.1080p.HMAX.WEB-DL.DDP5.1.H.264-FLUX/poster.jpg
 ###
+GET http://localhost:8000/api/guess?it=rick.and.morty.s07e10.fear.no.mort.1080p.hmax.web-dl.ddp5.1.h.264-flux/poster.jpg
+###
 GET http://localhost:8000/api/health
+###
+GET http://localhost:8000/api/statistics

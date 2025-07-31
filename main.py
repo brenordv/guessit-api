@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from guessit import guessit
 import traceback
 from fastapi.responses import JSONResponse
+from request_logger import RequestLogger
 
 app = FastAPI(
     title="GuessIt API",
@@ -9,12 +10,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Initialize the request logger
+request_logger = RequestLogger()
+
 @app.get("/api/guess")
-async def guess_filename(it: str = Query(None, description="Filename to analyze")):
+async def guess_filename(request: Request, it: str = Query(None, description="Filename to analyze")):
     """
     Analyze a filename using guessit and return the extracted information.
     
     Args:
+        request: The FastAPI request object
         it: The filename to analyze
         
     Returns:
@@ -28,9 +33,27 @@ async def guess_filename(it: str = Query(None, description="Filename to analyze"
     if not it:
         raise HTTPException(status_code=400, detail="Filename not provided")
     
+    # Get the client's IP address
+    client_ip = request.client.host
+    
     try:
         # Use guessit to analyze the filename
         result = guessit(it)
+        
+        # Extract title, year, and type from the result
+        title = result.get('title')
+        year = result.get('year')
+        media_type = result.get('type')
+        
+        # Log the request
+        request_logger.log(
+            filename=it,
+            requester_ip=client_ip,
+            title=title,
+            year=year,
+            type_=media_type
+        )
+        
         # Convert result to a serializable format
         serializable_result = {k: str(v) if not isinstance(v, (str, int, float, bool, list, dict, type(None))) else v 
                               for k, v in result.items()}
@@ -39,6 +62,14 @@ async def guess_filename(it: str = Query(None, description="Filename to analyze"
         # Capture the error and return a 500 response
         error_detail = f"Error processing filename: {str(e)}"
         traceback.print_exc()  # Print traceback for debugging
+        
+        # Log the error
+        request_logger.log(
+            filename=it,
+            requester_ip=client_ip,
+            error=error_detail
+        )
+        
         raise HTTPException(status_code=500, detail=error_detail)
 
 @app.get("/api/health")
@@ -92,6 +123,28 @@ async def health_check():
         error_detail = f"Health check failed: {str(e)}"
         traceback.print_exc()  # Print traceback for debugging
         return JSONResponse(content={"message": "broken", "error": error_detail}, status_code=500)
+
+@app.get("/api/statistics")
+async def get_statistics(num_requests: int = Query(100, description="Number of recent requests to return")):
+    """
+    Get statistics about the requests made to the /api/guess endpoint.
+    
+    Args:
+        num_requests: Number of recent requests to return. Defaults to 100.
+        
+    Returns:
+        JSON object with statistics about the requests:
+        - total: Total number of requests ever made to the API
+        - total_24h: Total number of requests in the past 24 hours
+        - recent_requests: List of the most recent N requests
+    """
+    try:
+        stats = request_logger.get_statistics(num_requests)
+        return stats
+    except Exception as e:
+        error_detail = f"Error retrieving statistics: {str(e)}"
+        traceback.print_exc()  # Print traceback for debugging
+        raise HTTPException(status_code=500, detail=error_detail)
 
 if __name__ == "__main__":
     import uvicorn

@@ -14,10 +14,11 @@ The API analyzes filenames and returns structured data including title, year, se
 
 ## How It Works
 
-The application is built with FastAPI and exposes the GuessIt library's functionality through a RESTful API. It provides two main endpoints:
+The application is built with FastAPI and exposes the GuessIt library's functionality through a RESTful API. It provides three main endpoints:
 
 - `/api/guess` - Analyzes a filename and returns structured information
 - `/api/health` - Provides a health check to verify the API is functioning correctly
+- `/api/statistics` - Returns statistics about requests made to the API
 
 ## Installation and Usage
 
@@ -145,6 +146,49 @@ Response:
 ```json
 {
   "message": "healthy"
+}
+```
+
+### Statistics
+
+```
+GET /api/statistics?num_requests=5
+```
+
+Response:
+```json
+{
+  "total": 42,
+  "total_24h": 15,
+  "recent_requests": [
+    {
+      "filename": "Rick.and.Morty.S07E10.Fear.No.Mort.1080p.HMAX.WEB-DL.DDP5.1.H.264-FLUX.mkv",
+      "requester_ip": "192.168.1.100",
+      "title": "Rick and Morty",
+      "year": null,
+      "type": "episode",
+      "error": null,
+      "timestamp": "2025-07-30T21:15:32.456789"
+    },
+    {
+      "filename": "Shin Godzilla (2016) 1080p Hybrid Bluray REMUX AVC Dual DTS-HD MA 3.1",
+      "requester_ip": "192.168.1.100",
+      "title": "Shin Godzilla",
+      "year": 2016,
+      "type": "movie",
+      "error": null,
+      "timestamp": "2025-07-30T21:14:28.123456"
+    },
+    {
+      "filename": "The Blob (1988) (1080p BluRay x265 10bit Tigole).mkv",
+      "requester_ip": "192.168.1.101",
+      "title": "The Blob",
+      "year": 1988,
+      "type": "movie",
+      "error": null,
+      "timestamp": "2025-07-30T21:10:15.789012"
+    }
+  ]
 }
 ```
 
