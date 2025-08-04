@@ -1,3 +1,5 @@
+> I pivoted this project to use a more robust approach. You can find it in this repo: [Media Identifier API](https://github.com/brenordv/media-identifier-api)
+
 # GuessIt API
 
 A RESTful API wrapper for the [GuessIt](https://github.com/guessit-io/guessit) library, which extracts information from video filenames.
